@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - MusicFlow{% endblock %}
+
+{% block content %}
+<style>
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid #282828;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #450af5, #c4efd9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .profile-info h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, var(--primary), #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #282828;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .songs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .song-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #282828;
+        transition: all 0.3s;
+    }
+
+    .song-card:hover {
+        background: var(--card-hover);
+    }
+
+    .song-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .song-cover {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #450af5, #c4efd9);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .song-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .song-info p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .song-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .genre-tag {
+        background: rgba(29, 185, 84, 0.1);
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+
+    .song-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .songs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Заголовок профиля -->
+<div class="profile-header">
+    <div class="profile-avatar">
+        <i class="fas fa-user"></i>
+    </div>
+    <div class="profile-info">
+        <h1>{{ current_user.username }}</h1>
+        <p style="color: var(--text-secondary);">Участник MusicFlow</p>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+            <i class="fas fa-calendar"></i> Зарегистрирован: {{ current_user.created_at.strftime('%d.%m.%Y') }}
+        </p>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="profile-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ user_songs|length }}</div>
+        <div class="stat-label">Загружено треков</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            {{ user_songs|sum(attribute='plays') }}
+        </div>
+        <div class="stat-label">Всего прослушиваний</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            {% if user_songs %}
+                {{ (user_songs|sum(attribute='plays') / user_songs|length)|round|int }}
+            {% else %}
+                0
+            {% endif %}
+        </div>
+        <div class="stat-label">Среднее на трек</div>
+    </div>
+</div>
+
+<!-- Мои треки -->
+<div>
+    <h2 class="section-title">Мои треки</h2>
+    
+    {% if user_songs %}
+    <div class="songs-grid">
+        {% for song in user_songs %}
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-cover">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="song-info">
+                    <h3>{{ song.title }}</h3>
+                    <p>{{ song.artist }}</p>
+                </div>
+            </div>
+            
+            <div class="song-meta">
+                <span class="genre-tag">{{ song.genre }}</span>
+                <span style="color: var(--text-secondary);">{{ song.duration }}</span>
+            </div>
+
+            <div class="song-stats">
+                <span>🎵 {{ song.plays }} прослушиваний</span>
+                <span>{{ song.upload_date.strftime('%d.%m.%Y') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-music"></i>
+        <h3>Пока нет загруженных треков</h3>
+        <p>Загрузите свой первый трек и поделитесь им с сообществом!</p>
+        <a href="/upload" class="btn" style="margin-top: 1rem;">
+            <i class="fas fa-upload"></i> Загрузить трек
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}Загрузить трек - MusicFlow{% endblock %}
+
+{% block content %}
+<style>
+    /* Переопределение переменных если нужно */
+    :root {
+        --primary: #1db954;
+        --primary-dark: #1ed760;
+        --background: #000000;
+        --card-bg: #181818;
+        --text-primary: #ffffff;
+        --text-secondary: #b3b3b3;
+        --card-hover: #282828;
+        --error: #e22134;
+        --success: #1db954;
+    }
+
+    .page-header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 400;
+    }
+
+    .upload-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 2.5rem;
+        border: 1px solid #282828;
+    }
+
+    .upload-area {
+        border: 2px dashed #535353;
+        border-radius: 8px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: rgba(29, 185, 84, 0.05);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .upload-text h3 {
+        font-size: 1.3rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .upload-text p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .form-input, .form-select {
+        background: var(--background);
+        border: 1px solid #535353;
+        border-radius: 4px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+    }
+
+    .form-hint {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    .file-preview {
+        background: var(--background);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #282828;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .file-icon {
+        font-size: 1.8rem;
+        color: var(--primary);
+    }
+
+    .file-details h4 {
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .file-details p {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .file-remove {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+
+    .file-remove:hover {
+        color: var(--error);
+        background: rgba(226, 33, 52, 0.1);
+    }
+
+    .info-box {
+        background: rgba(29, 185, 84, 0.05);
+        border: 1px solid rgba(29, 185, 84, 0.2);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-title {
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .info-list {
+        color: var(--text-secondary);
+        padding-left: 1.5rem;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .info-list li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Кнопки в стиле MusicFlow */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: #000000;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: scale(1.02);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--text-primary);
+        border: 1px solid #535353;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .upload-container {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+        
+        .btn {
+            justify-content: center;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">Загрузить трек</h1>
+    <p class="page-subtitle">Поделитесь своей музыкой с сообществом</p>
+</div>
+
+<div class="upload-container">
+    <form method="POST" enctype="multipart/form-data" id="upload-form">
+        <!-- Область загрузки файла -->
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="upload-text">
+                <h3>Перетащите файл сюда</h3>
+                <p>или нажмите для выбора файла</p>
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-folder-open"></i> Выбрать файл
+                </button>
+            </div>
+            <input type="file" id="file-input" name="file" class="file-input" accept=".mp3,.wav,.ogg" required>
+        </div>
+
+        <!-- Предпросмотр файла -->
+        <div class="file-preview" id="file-preview">
+            <div class="file-info">
+                <i class="fas fa-music file-icon"></i>
+                <div class="file-details">
+                    <h4 id="file-name">Название файла</h4>
+                    <p id="file-size">Размер файла</p>
+                </div>
+            </div>
+            <button type="button" class="file-remove" onclick="removeFile()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Информация о треке -->
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="form-label">Название трека *</label>
+                <input type="text" name="title" class="form-input" placeholder="Введите название трека" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Исполнитель *</label>
+                <input type="text" name="artist" class="form-input" placeholder="Имя исполнителя" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Жанр *</label>
+                <select name="genre" class="form-select" required>
+                    <option value="">Выберите жанр</option>
+                    <option value="Pop">Pop</option>
+                    <option value="Rock">Rock</option>
+                    <option value="Electronic">Electronic</option>
+                    <option value="Hip-Hop">Hip-Hop</option>
+                    <option value="Jazz">Jazz</option>
+                    <option value="Classical">Classical</option>
+                    <option value="R&B">R&amp;B</option>
+                    <option value="Country">Country</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Длительность *</label>
+                <input type="text" name="duration" class="form-input" placeholder="3:45" required>
+                <div class="form-hint">Формат: минуты:секунды (например: 3:45)</div>
+            </div>
+        </div>
+
+        <!-- Подсказки -->
+        <div class="info-box">
+            <div class="info-title">
+                <i class="fas fa-info-circle"></i> Советы по загрузке
+            </div>
+            <ul class="info-list">
+                <li>Поддерживаемые форматы: MP3, WAV, OGG</li>
+                <li>Максимальный размер файла: 50MB</li>
+                <li>Убедитесь, что у вас есть права на распространение музыки</li>
+                <li>Рекомендуемое качество: 320kbps</li>
+            </ul>
+        </div>
+
+        <!-- Действия -->
+        <div class="form-actions">
+            <a href="/music" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Загрузить трек
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+const fileInput = document.getElementById('file-input');
+const filePreview = document.getElementById('file-preview');
+const fileName = document.getElementById('file-name');
+const fileSize = document.getElementById('file-size');
+
+// Обработка выбора файла
+fileInput.addEventListener('change', function() {
+    if (this.files.length > 0) {
+        const file = this.files[0];
+        
+        // Проверка размера (50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            alert('Файл слишком большой. Максимальный размер: 50MB');
+            this.value = '';
+            filePreview.style.display = 'none';
+            return;
+        }
+        
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        filePreview.style.display = 'flex';
+        
+        // Автозаполнение названия трека, если поле пустое
+        const titleInput = document.querySelector('input[name="title"]');
+        if (!titleInput.value) {
+            let nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+            // Убираем лишние символы
+            nameWithoutExt = nameWithoutExt.replace(/[_\-]+/g, ' ');
+            titleInput.value = nameWithoutExt;
+        }
+    }
+});
+
+// Форматирование размера файла
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Удаление выбранного файла
+function removeFile() {
+    fileInput.value = '';
+    filePreview.style.display = 'none';
+    
+    // Очищаем поле названия, если оно было автозаполнено
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput.value && !titleInput.defaultValue) {
+        // Не очищаем, если пользователь ввел вручную
+    }
+}
+
+// Drag & Drop
+const uploadArea = document.getElementById('upload-area');
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary)';
+    uploadArea.style.background = 'rgba(29, 185, 84, 0.05)';
+});
+
+uploadArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#535353';
+    uploadArea.style.background = 'transparent';
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#535353';
+    uploadArea.style.background = 'transparent';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        // Триггерим событие change
+        const event = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(event);
+    }
+});
+
+// Валидация формы
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    const durationInput = document.querySelector('input[name="duration"]');
+    const durationValue = durationInput.value.trim();
+    
+    if (!/^\d+:\d{2}$/.test(durationValue)) {
+        e.preventDefault();
+        alert('Пожалуйста, введите длительность в формате минуты:секунды (например: 3:45)');
+        durationInput.focus();
+        return;
+    }
+    
+    if (!fileInput.files.length) {
+        e.preventDefault();
+        alert('Пожалуйста, выберите аудио файл');
+        return;
+    }
+    
+    // Разделяем минуты и секунды
+    const [minutes, seconds] = durationValue.split(':');
+    const mins = parseInt(minutes);
+    const secs = parseInt(seconds);
+    
+    if (isNaN(mins) || isNaN(secs) || secs > 59) {
+        e.preventDefault();
+        alert('Пожалуйста, введите корректную длительность (секунды от 00 до 59)');
+        durationInput.focus();
+        return;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - MusicFlow{% endblock %}
+
+{% block content %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    .auth-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 3rem;
+        border: 1px solid #282828;
+        text-align: center;
+    }
+
+    .auth-header {
+        margin-bottom: 2rem;
+    }
+
+    .auth-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, var(--primary), #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .auth-form {
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .form-input {
+        width: 100%;
+        background: var(--background);
+        border: 1px solid #535353;
+        border-radius: 4px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+    }
+
+    .password-strength {
+        height: 4px;
+        background: #535353;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s;
+        border-radius: 2px;
+    }
+
+    .strength-weak { background: var(--error); width: 33%; }
+    .strength-medium { background: #ffa500; width: 66%; }
+    .strength-strong { background: var(--success); width: 100%; }
+
+    .form-hint {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .checkbox {
+        width: 18px;
+        height: 18px;
+        margin-top: 0.25rem;
+        accent-color: var(--primary);
+    }
+
+    .checkbox-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .checkbox-label a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .checkbox-label a:hover {
+        text-decoration: underline;
+    }
+
+    .form-actions {
+        margin-top: 2rem;
+    }
+
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .login-link a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Заголовок -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1 class="auth-title">Регистрация</h1>
+            <p class="auth-subtitle">Присоединяйтесь к музыкальному сообществу</p>
+        </div>
+
+        <!-- Форма -->
+        <form method="POST" class="auth-form" id="register-form">
+            <div class="form-group">
+                <label class="form-label">Имя пользователя *</label>
+                <input type="text" name="username" class="form-input" placeholder="Введите имя пользователя" required minlength="3" maxlength="20">
+                <div class="form-hint">От 3 до 20 символов</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Пароль *</label>
+                <input type="password" name="password" class="form-input" placeholder="Введите пароль" required minlength="6" id="password">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="password-strength-bar"></div>
+                </div>
+                <div class="form-hint">Минимум 6 символов</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Подтверждение пароля *</label>
+                <input type="password" name="confirm_password" class="form-input" placeholder="Повторите пароль" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" class="checkbox" id="terms" required>
+                <label class="checkbox-label" for="terms">
+                    Я соглашаюсь с <a href="#">Условиями использования</a> и <a href="#">Политикой конфиденциальности</a>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-full">
+                    <i class="fas fa-user-plus"></i> Создать аккаунт
+                </button>
+            </div>
+        </form>
+
+        <!-- Ссылка на вход -->
+        <div class="login-link">
+            Уже есть аккаунт? <a href="/login">Войти</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Проверка сложности пароля
+const passwordInput = document.getElementById('password');
+const strengthBar = document.getElementById('password-strength-bar');
+
+passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    let strength = 0;
+    
+    if (password.length >= 6) strength += 1;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
+    if (password.match(/\d/)) strength += 1;
+    if (password.match(/[^a-zA-Z\d]/)) strength += 1;
+    
+    strengthBar.className = 'password-strength-bar';
+    if (password.length === 0) {
+        strengthBar.style.width = '0%';
+    } else if (strength <= 1) {
+        strengthBar.classList.add('strength-weak');
+    } else if (strength <= 2) {
+        strengthBar.classList.add('strength-medium');
+    } else {
+        strengthBar.classList.add('strength-strong');
+    }
+});
+
+// Валидация формы
+document.getElementById('register-form').addEventListener('submit', function(e) {
+    const password = document.querySelector('input[name="password"]').value;
+    const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+    const terms = document.getElementById('terms').checked;
+    
+    if (!terms) {
+        e.preventDefault();
+        alert('Пожалуйста, примите условия использования');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Пароли не совпадают');
+        return;
+    }
+});
+</script>
+{% endblock %}

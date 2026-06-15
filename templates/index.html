@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicFlow — Аудиоплатформа</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Типография */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        h1 { font-size: 3.5rem; font-weight: 350; }
+        h2 { font-size: 2.5rem; font-weight: 350; }
+        h3 { font-size: 1.8rem; font-weight: 400; }
+        h4 { font-size: 1.2rem; font-weight: 450; }
+
+        .mono {
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            letter-spacing: -0.02em;
+        }
+
+        .thin { font-weight: 300; }
+        .light { font-weight: 350; }
+        .regular { font-weight: 400; }
+        .medium { font-weight: 450; }
+
+        /* Основной контейнер */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Хедер */
+        header {
+            padding: 40px 0;
+            margin-bottom: 80px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 350;
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            transform: rotate(45deg);
+        }
+
+        nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 350;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            padding: 8px 0;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #667eea;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav a:hover {
+            color: #ffffff;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a.active {
+            color: #ffffff;
+        }
+
+        nav a.active::after {
+            width: 100%;
+        }
+
+        /* Герой секция */
+        .hero {
+            margin-bottom: 120px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 5rem;
+            font-weight: 350;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 60px;
+            line-height: 1.8;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 80px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 350;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Секции с треками */
+        .section {
+            margin-bottom: 120px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-header h3 {
+            font-size: 2.2rem;
+            font-weight: 350;
+            color: #ffffff;
+        }
+
+        .view-all {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 350;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .view-all:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            color: #667eea;
+        }
+
+        /* Карточки треков */
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .track-card:hover {
+            border-color: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .track-card:hover::before {
+            opacity: 1;
+        }
+
+        .track-number {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 1.8rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .track-title {
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .track-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .track-artist,
+        .track-genre,
+        .track-duration {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.95rem;
+            font-weight: 350;
+        }
+
+        .track-artist::before {
+            content: '— ';
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .track-stats {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .plays {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .plays::before {
+            content: '▶';
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95rem;
+            font-weight: 350;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .play-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.03);
+        }
+
+        .play-btn.playing {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .play-btn.playing::before {
+            content: '⏸';
+        }
+
+        .play-btn:not(.playing)::before {
+            content: '▶';
+        }
+
+        /* Горизонтальная линия */
+        .hr {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 120px 0;
+        }
+
+        /* Футер */
+        footer {
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-size: 1.4rem;
+            font-weight: 350;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 48px;
+        }
+
+        .footer-column h4 {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .footer-column a {
+            display: block;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .copyright {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 32px;
+            }
+            
+            .tracks-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            }
+            
+            .hero h2 {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 24px;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 32px;
+                margin-bottom: 60px;
+            }
+            
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 24px;
+            }
+            
+            .hero h2 {
+                font-size: 3rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .tracks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 32px;
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .track-card,
+        .stat-item,
+        .hero h2 {
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .track-card:nth-child(1) { animation-delay: 0.1s; }
+        .track-card:nth-child(2) { animation-delay: 0.2s; }
+        .track-card:nth-child(3) { animation-delay: 0.3s; }
+        .track-card:nth-child(4) { animation-delay: 0.4s; }
+        .track-card:nth-child(5) { animation-delay: 0.5s; }
+        .track-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Хедер -->
+        <header>
+            <a href="{{ url_for('home') }}" class="logo">
+                <div class="logo-icon"></div>
+                MUSICFLOW
+            </a>
+            <nav>
+                <a href="{{ url_for('home') }}" class="active">Главная</a>
+                <a href="{{ url_for('show_music') }}">Треки</a>
+                <a href="{{ url_for('upload') }}">Загрузить</a>
+                <a href="{{ url_for('profile') }}">Профиль</a>
+                <a href="{{ url_for('logout') }}">Выход</a>
+            </nav>
+        </header>
+
+        <!-- Герой секция -->
+        <section class="hero">
+            <h2>Аудиоплатформа</h2>
+            <p>Минималистичный интерфейс для прослушивания и распространения музыки. Сосредоточьтесь на звуке.</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ total_songs }}</div>
+                    <div class="stat-label">Треков</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ total_users }}</div>
+                    <div class="stat-label">Пользователей</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Возможностей</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Горизонтальная линия -->
+        <div class="hr"></div>
+
+        <!-- Популярные треки -->
+        <section class="section">
+            <div class="section-header">
+                <h3 class="thin">Популярные треки</h3>
+                <a href="{{ url_for('show_music') }}" class="view-all mono">Все треки →</a>
+            </div>
+            
+            <div class="tracks-grid">
+                {% for song in popular_songs %}
+                <div class="track-card">
+                    <div class="track-number mono">{{ loop.index }}</div>
+                    <h4 class="track-title">{{ song.title }}</h4>
+                    <div class="track-meta">
+                        <div class="track-artist">{{ song.artist }}</div>
+                        <div class="track-genre">{{ song.genre }}</div>
+                        <div class="track-duration">{{ song.duration }}</div>
+                    </div>
+                    <div class="track-stats">
+                        <div class="plays mono">{{ song.plays }}</div>
+                    </div>
+                    <button class="play-btn mono" onclick="playSong({{ song.id }}, '{{ song.title }}', '{{ song.artist }}')">
+                        Воспроизвести
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Новые треки -->
+        <section class="section">
+            <div class="section-header">
+                <h3 class="thin">Новые треки</h3>
+                <a href="{{ url_for('show_music') }}" class="view-all mono">Все треки →</a>
+            </div>
+            
+            <div class="tracks-grid">
+                {% for song in recent_songs %}
+                <div class="track-card">
+                    <div class="track-number mono">{{ loop.index + popular_songs|length }}</div>
+                    <h4 class="track-title">{{ song.title }}</h4>
+                    <div class="track-meta">
+                        <div class="track-artist">{{ song.artist }}</div>
+                        <div class="track-genre">{{ song.genre }}</div>
+                        <div class="track-duration">{{ song.duration }}</div>
+                    </div>
+                    <div class="track-stats">
+                        <div class="plays mono">{{ song.plays }}</div>
+                    </div>
+                    <button class="play-btn mono" onclick="playSong({{ song.id }}, '{{ song.title }}', '{{ song.artist }}')">
+                        Воспроизвести
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Футер -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo-icon"></div>
+                    MUSICFLOW
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Навигация</h4>
+                        <a href="{{ url_for('home') }}">Главная</a>
+                        <a href="{{ url_for('show_music') }}">Треки</a>
+                        <a href="{{ url_for('upload') }}">Загрузить</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Аккаунт</h4>
+                        <a href="{{ url_for('profile') }}">Профиль</a>
+                        <a href="{{ url_for('login') }}">Войти</a>
+                        <a href="{{ url_for('register') }}">Регистрация</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Информация</h4>
+                        <a href="#">Условия</a>
+                        <a href="#">Конфиденциальность</a>
+                        <a href="#">Контакты</a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright mono">
+                © 2024 MUSICFLOW. Все права защищены.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Глобальный аудиоплеер
+        window.audioPlayer = null;
+        window.currentSongId = null;
+
+        // Функция воспроизведения
+        function playSong(songId, title, artist) {
+            // Создаем аудио элемент если его нет
+            if (!window.audioPlayer) {
+                window.audioPlayer = new Audio();
+                window.audioPlayer.volume = 0.7;
+            }
+            
+            // Если уже играет этот трек - пауза
+            const currentBtn = event.target.closest('.play-btn');
+            
+            if (window.currentSongId === songId && !window.audioPlayer.paused) {
+                window.audioPlayer.pause();
+                currentBtn.classList.remove('playing');
+                showNotification('⏸ Воспроизведение приостановлено');
+                return;
+            }
+            
+            // Если играет другой трек
+            if (window.currentSongId && window.currentSongId !== songId) {
+                document.querySelectorAll('.play-btn').forEach(btn => {
+                    btn.classList.remove('playing');
+                });
+            }
+            
+            // Устанавливаем новый трек
+            window.audioPlayer.src = `/play/${songId}`;
+            window.currentSongId = songId;
+            currentBtn.classList.add('playing');
+            
+            // Воспроизводим
+            window.audioPlayer.play().catch(e => {
+                console.error("Ошибка воспроизведения:", e);
+                currentBtn.classList.remove('playing');
+                showNotification('⚠ Ошибка воспроизведения');
+            });
+            
+            // Уведомление
+            showNotification(`▶ Сейчас играет: ${title}`);
+            
+            // Обработчики событий
+            window.audioPlayer.onended = function() {
+                currentBtn.classList.remove('playing');
+                window.currentSongId = null;
+                showNotification('■ Воспроизведение завершено');
+            };
+            
+            window.audioPlayer.onpause = function() {
+                if (window.audioPlayer.ended) return;
+                currentBtn.classList.remove('playing');
+                showNotification('⏸ Воспроизведение приостановлено');
+            };
+        }
+
+        // Уведомления
+        function showNotification(message) {
+            // Удаляем предыдущее уведомление
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 32px;
+                right: 32px;
+                background: rgba(10, 10, 15, 0.95);
+                color: rgba(255, 255, 255, 0.9);
+                padding: 16px 24px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                font-size: 0.9rem;
+                font-weight: 350;
+                letter-spacing: 0.5px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
+                backdrop-filter: blur(10px);
+                max-width: 400px;
+                line-height: 1.4;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Стили для анимации уведомлений
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateY(20px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
