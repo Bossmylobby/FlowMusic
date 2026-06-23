@@ -1,211 +1,235 @@
 {% extends "base.html" %}
-
-{% block title %}Вход - MusicFlow{% endblock %}
+{% block title %}Вход — MusicFlow{% endblock %}
 
 {% block content %}
 <style>
-    .auth-container {
-        max-width: 450px;
+    /* ── Общие стили форм аутентификации (совпадают в login/register) ── */
+    .auth-wrap {
+        max-width: 420px;
         margin: 0 auto;
+        padding: 40px 0 80px;
+        animation: fadeUp 0.45s ease both;
     }
 
-    .auth-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        padding: 3rem;
-        border: 1px solid #282828;
-        text-align: center;
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
-    .auth-header {
-        margin-bottom: 2rem;
-    }
-
-    .auth-icon {
-        font-size: 3rem;
-        color: var(--primary);
-        margin-bottom: 1rem;
+    /* Заголовок */
+    .auth-eyebrow {
+        font-size: 0.72rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.25);
+        margin-bottom: 14px;
     }
 
     .auth-title {
-        font-size: 2rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, var(--primary), #fff);
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2.4rem;
+        font-weight: 350;
+        letter-spacing: -0.03em;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.1;
     }
 
-    .auth-subtitle {
-        color: var(--text-secondary);
-        font-size: 1rem;
-    }
-
-    .auth-form {
-        text-align: left;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .form-input {
-        width: 100%;
-        background: var(--background);
-        border: 1px solid #535353;
-        border-radius: 4px;
-        padding: 0.75rem 1rem;
-        color: var(--text-primary);
-        font-size: 1rem;
-        transition: all 0.3s;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
-    }
-
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .checkbox {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--primary);
-    }
-
-    .checkbox-label {
+    .auth-sub {
         font-size: 0.9rem;
-        color: var(--text-secondary);
+        font-weight: 350;
+        color: rgba(255,255,255,0.35);
+        margin-bottom: 48px;
     }
 
-    .form-actions {
-        margin-top: 2rem;
-    }
-
-    .btn-full {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .demo-credentials {
-        background: rgba(29, 185, 84, 0.05);
-        border: 1px solid rgba(29, 185, 84, 0.2);
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin: 2rem 0;
-        text-align: left;
+    /* Демо-блок */
+    .demo-hint {
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 16px 20px;
+        margin-bottom: 36px;
         cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .demo-credentials:hover {
-        background: rgba(29, 185, 84, 0.1);
-    }
-
-    .demo-title {
-        color: var(--primary);
-        font-weight: 600;
-        margin-bottom: 0.5rem;
+        transition: border-color 0.25s ease, background 0.25s ease;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 14px;
     }
 
-    .demo-item {
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
+    .demo-hint:hover {
+        border-color: rgba(102,126,234,0.3);
+        background: rgba(102,126,234,0.03);
     }
 
-    .register-link {
+    .demo-hint-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.25);
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .demo-hint-text {
+        font-size: 0.82rem;
+        font-weight: 350;
+    }
+
+    .demo-hint-text strong {
+        color: rgba(255,255,255,0.7);
+        font-weight: 400;
+    }
+
+    .demo-hint-text span {
+        display: block;
+        color: rgba(255,255,255,0.25);
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+
+    /* Поля */
+    .f-group {
+        margin-bottom: 28px;
+    }
+
+    .f-label {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.28);
+        margin-bottom: 10px;
+    }
+
+    .f-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 10px 0;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 350;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.25s ease;
+    }
+
+    .f-input::placeholder { color: rgba(255,255,255,0.18); }
+
+    .f-input:focus { border-bottom-color: #667eea; }
+
+    /* Чекбокс «Запомнить» */
+    .f-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 36px;
+        cursor: pointer;
+    }
+
+    .f-check input {
+        width: 15px;
+        height: 15px;
+        accent-color: #667eea;
+        cursor: pointer;
+    }
+
+    .f-check-label {
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.35);
+    }
+
+    /* Кнопка отправки */
+    .f-submit {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
+        font-size: 0.82rem;
+        font-weight: 400;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.25s ease;
+        margin-bottom: 28px;
+    }
+
+    .f-submit:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102,126,234,0.04);
+    }
+
+    /* Ссылка переключения */
+    .auth-switch {
         text-align: center;
-        margin-top: 2rem;
-        color: var(--text-secondary);
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.28);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 24px;
     }
 
-    .register-link a {
-        color: var(--primary);
+    .auth-switch a {
+        color: rgba(255,255,255,0.55);
         text-decoration: none;
-        font-weight: 500;
+        margin-left: 4px;
+        transition: color 0.2s;
     }
 
-    .register-link a:hover {
-        text-decoration: underline;
-    }
+    .auth-switch a:hover { color: #667eea; }
 </style>
 
-<div class="auth-container">
-    <div class="auth-card">
-        <!-- Заголовок -->
-        <div class="auth-header">
-            <div class="auth-icon">
-                <i class="fas fa-sign-in-alt"></i>
-            </div>
-            <h1 class="auth-title">Вход в аккаунт</h1>
-            <p class="auth-subtitle">С возвращением в MusicFlow!</p>
+<div class="auth-wrap">
+    <div class="auth-eyebrow">Аккаунт</div>
+    <h1 class="auth-title">Вход</h1>
+    <p class="auth-sub">С возвращением в MusicFlow</p>
+
+    <!-- Демо-аккаунт -->
+    <div class="demo-hint" id="demo-hint">
+        <div class="demo-hint-icon"><i class="fas fa-key"></i></div>
+        <div class="demo-hint-text">
+            <strong>Тестовый аккаунт — demo</strong>
+            <span>Нажмите, чтобы заполнить автоматически</span>
+        </div>
+    </div>
+
+    <form method="POST" id="login-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="f-group">
+            <label class="f-label">Имя пользователя</label>
+            <input type="text" name="username" id="username"
+                   class="f-input" placeholder="Введите логин" required autocomplete="username">
         </div>
 
-        <!-- Демо данные -->
-        <div class="demo-credentials" id="demo-credentials">
-            <div class="demo-title">
-                <i class="fas fa-key"></i>
-                Тестовый аккаунт
-            </div>
-            <div class="demo-item">Логин: <strong>demo</strong></div>
-            <div class="demo-item">Пароль: <strong>demo123</strong></div>
+        <div class="f-group">
+            <label class="f-label">Пароль</label>
+            <input type="password" name="password" id="password"
+                   class="f-input" placeholder="Введите пароль" required autocomplete="current-password">
         </div>
 
-        <!-- Форма -->
-        <form method="POST" class="auth-form" id="login-form">
-            <div class="form-group">
-                <label class="form-label">Имя пользователя *</label>
-                <input type="text" name="username" class="form-input" placeholder="Введите имя пользователя" required id="username">
-            </div>
+        <label class="f-check">
+            <input type="checkbox" name="remember" id="remember">
+            <span class="f-check-label">Запомнить меня</span>
+        </label>
 
-            <div class="form-group">
-                <label class="form-label">Пароль *</label>
-                <input type="password" name="password" class="form-input" placeholder="Введите пароль" required id="password">
-            </div>
+        <button type="submit" class="f-submit">Войти</button>
+    </form>
 
-            <div class="checkbox-group">
-                <input type="checkbox" class="checkbox" id="remember" name="remember">
-                <label class="checkbox-label" for="remember">
-                    Запомнить меня
-                </label>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-full">
-                    <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
-                </button>
-            </div>
-        </form>
-
-        <!-- Ссылка на регистрацию -->
-        <div class="register-link">
-            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
-        </div>
+    <div class="auth-switch">
+        Нет аккаунта?<a href="/register">Зарегистрироваться</a>
     </div>
 </div>
 
 <script>
-// Автозаполнение демо данных
-document.getElementById('demo-credentials').addEventListener('click', function() {
+document.getElementById('demo-hint').addEventListener('click', () => {
     document.getElementById('username').value = 'demo';
-    document.getElementById('password').value = 'demo123';
+    document.getElementById('password').value = 'Demo@1234';
 });
 </script>
 {% endblock %}

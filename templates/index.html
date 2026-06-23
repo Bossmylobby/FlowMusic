@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusicFlow — Аудиоплатформа</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;350;400;450&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -80,7 +82,33 @@
         nav {
             display: flex;
             gap: 32px;
+            align-items: center;
         }
+
+        /* Бургер-кнопка */
+        .burger-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .burger-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .burger-btn.open span:nth-child(2) { opacity: 0; }
+        .burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
         nav a {
             color: rgba(255, 255, 255, 0.6);
@@ -423,44 +451,110 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             .container {
-                padding: 0 24px;
+                padding: 0 16px;
             }
-            
+
             header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 32px;
+                padding: 20px 0;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .burger-btn {
+                display: flex;
+            }
+
+            nav {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(10, 10, 15, 0.98);
                 flex-direction: column;
-                gap: 32px;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                z-index: 9999;
+            }
+
+            nav.open {
+                display: flex;
+            }
+
+            nav a {
+                font-size: 1.4rem;
+            }
+
+            .hero {
                 margin-bottom: 60px;
             }
-            
-            nav {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 24px;
-            }
-            
+
             .hero h2 {
-                font-size: 3rem;
+                font-size: 2.2rem;
             }
-            
+
+            .hero p {
+                font-size: 1rem;
+                margin-bottom: 32px;
+            }
+
             .stats {
                 flex-direction: column;
-                gap: 40px;
+                gap: 24px;
+                margin-top: 40px;
             }
-            
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .section {
+                margin-bottom: 60px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .section-header h3 {
+                font-size: 1.5rem;
+            }
+
             .tracks-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
-            
+
+            .track-card {
+                padding: 20px;
+            }
+
+            .hr {
+                margin: 60px 0;
+            }
+
             .footer-content {
                 flex-direction: column;
-                gap: 40px;
+                gap: 32px;
             }
-            
+
             .footer-links {
                 flex-direction: column;
-                gap: 32px;
+                gap: 24px;
+            }
+
+            footer {
+                padding: 40px 0 24px;
             }
         }
 
@@ -518,12 +612,20 @@
                 <div class="logo-icon"></div>
                 MUSICFLOW
             </a>
-            <nav>
-                <a href="{{ url_for('home') }}" class="active">Главная</a>
-                <a href="{{ url_for('show_music') }}">Треки</a>
-                <a href="{{ url_for('upload') }}">Загрузить</a>
-                <a href="{{ url_for('profile') }}">Профиль</a>
-                <a href="{{ url_for('logout') }}">Выход</a>
+            <button class="burger-btn" id="burger-btn" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+            <nav id="main-nav">
+                <a href="{{ url_for('home') }}" class="active" onclick="closeNav()">Главная</a>
+                <a href="{{ url_for('show_music') }}" onclick="closeNav()">Треки</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('upload') }}" onclick="closeNav()">Загрузить</a>
+                    <a href="{{ url_for('profile') }}" onclick="closeNav()">Профиль</a>
+                    <a href="{{ url_for('logout') }}" onclick="closeNav()">Выход</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" onclick="closeNav()">Войти</a>
+                    <a href="{{ url_for('register') }}" onclick="closeNav()">Регистрация</a>
+                {% endif %}
             </nav>
         </header>
 
@@ -534,16 +636,16 @@
             
             <div class="stats">
                 <div class="stat-item">
-                    <div class="stat-number">{{ total_songs }}</div>
+                    <div class="stat-number" id="stat-songs">—</div>
                     <div class="stat-label">Треков</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">{{ total_users }}</div>
+                    <div class="stat-number" id="stat-users">—</div>
                     <div class="stat-label">Пользователей</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">∞</div>
-                    <div class="stat-label">Возможностей</div>
+                    <div class="stat-number" id="stat-plays">—</div>
+                    <div class="stat-label">Прослушиваний</div>
                 </div>
             </div>
         </section>
@@ -551,59 +653,26 @@
         <!-- Горизонтальная линия -->
         <div class="hr"></div>
 
-        <!-- Популярные треки -->
+        <!-- Популярные треки (API) -->
         <section class="section">
             <div class="section-header">
                 <h3 class="thin">Популярные треки</h3>
                 <a href="{{ url_for('show_music') }}" class="view-all mono">Все треки →</a>
             </div>
-            
-            <div class="tracks-grid">
-                {% for song in popular_songs %}
-                <div class="track-card">
-                    <div class="track-number mono">{{ loop.index }}</div>
-                    <h4 class="track-title">{{ song.title }}</h4>
-                    <div class="track-meta">
-                        <div class="track-artist">{{ song.artist }}</div>
-                        <div class="track-genre">{{ song.genre }}</div>
-                        <div class="track-duration">{{ song.duration }}</div>
-                    </div>
-                    <div class="track-stats">
-                        <div class="plays mono">{{ song.plays }}</div>
-                    </div>
-                    <button class="play-btn mono" onclick="playSong({{ song.id }}, '{{ song.title }}', '{{ song.artist }}')">
-                        Воспроизвести
-                    </button>
-                </div>
-                {% endfor %}
+            <div class="tracks-grid" id="popular-grid">
+                <div style="color:rgba(255,255,255,0.3);padding:20px">Загрузка...</div>
             </div>
         </section>
 
-        <!-- Новые треки -->
+        <!-- Новые треки (API) -->
         <section class="section">
             <div class="section-header">
                 <h3 class="thin">Новые треки</h3>
                 <a href="{{ url_for('show_music') }}" class="view-all mono">Все треки →</a>
             </div>
             
-            <div class="tracks-grid">
-                {% for song in recent_songs %}
-                <div class="track-card">
-                    <div class="track-number mono">{{ loop.index + popular_songs|length }}</div>
-                    <h4 class="track-title">{{ song.title }}</h4>
-                    <div class="track-meta">
-                        <div class="track-artist">{{ song.artist }}</div>
-                        <div class="track-genre">{{ song.genre }}</div>
-                        <div class="track-duration">{{ song.duration }}</div>
-                    </div>
-                    <div class="track-stats">
-                        <div class="plays mono">{{ song.plays }}</div>
-                    </div>
-                    <button class="play-btn mono" onclick="playSong({{ song.id }}, '{{ song.title }}', '{{ song.artist }}')">
-                        Воспроизвести
-                    </button>
-                </div>
-                {% endfor %}
+            <div class="tracks-grid" id="recent-grid">
+                <div style="color:rgba(255,255,255,0.3);padding:20px">Загрузка...</div>
             </div>
         </section>
 
@@ -642,124 +711,152 @@
     </div>
 
     <script>
-        // Глобальный аудиоплеер
-        window.audioPlayer = null;
-        window.currentSongId = null;
+        // ── Аудиоплеер ──
+        let audioPlayer  = null;
+        let currentSongId = null;
 
-        // Функция воспроизведения
-        function playSong(songId, title, artist) {
-            // Создаем аудио элемент если его нет
-            if (!window.audioPlayer) {
-                window.audioPlayer = new Audio();
-                window.audioPlayer.volume = 0.7;
+        function getAudio() {
+            if (!audioPlayer) {
+                audioPlayer = new Audio();
+                audioPlayer.volume = 0.7;
+                audioPlayer.onended = () => {
+                    resetBtn(currentSongId);
+                    currentSongId = null;
+                };
             }
-            
-            // Если уже играет этот трек - пауза
-            const currentBtn = event.target.closest('.play-btn');
-            
-            if (window.currentSongId === songId && !window.audioPlayer.paused) {
-                window.audioPlayer.pause();
-                currentBtn.classList.remove('playing');
-                showNotification('⏸ Воспроизведение приостановлено');
+            return audioPlayer;
+        }
+
+        function resetBtn(id) {
+            const btn = document.querySelector(`.play-btn[data-id="${id}"]`);
+            if (btn) { btn.classList.remove('playing'); btn.textContent = 'Воспроизвести'; }
+        }
+
+        function playSong(id, title, artist) {
+            const audio = getAudio();
+            if (currentSongId === id) {
+                audio.paused ? audio.play() : audio.pause();
+                const btn = document.querySelector(`.play-btn[data-id="${id}"]`);
+                if (btn) btn.classList.toggle('playing', !audio.paused);
                 return;
             }
-            
-            // Если играет другой трек
-            if (window.currentSongId && window.currentSongId !== songId) {
-                document.querySelectorAll('.play-btn').forEach(btn => {
-                    btn.classList.remove('playing');
-                });
+            if (currentSongId) resetBtn(currentSongId);
+            currentSongId = id;
+            audio.src = `/play/${id}`;
+            audio.play().catch(() => showNotification('⚠ Файл трека не найден'));
+            const btn = document.querySelector(`.play-btn[data-id="${id}"]`);
+            if (btn) { btn.classList.add('playing'); btn.textContent = 'Пауза'; }
+            showNotification(`▶ ${title} — ${artist}`);
+        }
+
+        // ── Рендер карточек треков ──
+        function renderCards(songs, container) {
+            if (!songs.length) {
+                container.innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:20px">Треков пока нет</div>';
+                return;
             }
-            
-            // Устанавливаем новый трек
-            window.audioPlayer.src = `/play/${songId}`;
-            window.currentSongId = songId;
-            currentBtn.classList.add('playing');
-            
-            // Воспроизводим
-            window.audioPlayer.play().catch(e => {
-                console.error("Ошибка воспроизведения:", e);
-                currentBtn.classList.remove('playing');
-                showNotification('⚠ Ошибка воспроизведения');
+            container.innerHTML = '';
+            songs.forEach((song, i) => {
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                card.innerHTML = `
+                    <div class="track-number mono">${i + 1}</div>
+                    <h4 class="track-title">${escHtml(song.title)}</h4>
+                    <div class="track-meta">
+                        <div class="track-artist">${escHtml(song.artist)}</div>
+                        <div class="track-genre">${escHtml(song.genre)}</div>
+                        <div class="track-duration">${song.duration || '—'}</div>
+                    </div>
+                    <div class="track-stats">
+                        <div class="plays mono">▶ ${song.plays}</div>
+                    </div>
+                    <button class="play-btn mono" data-id="${song.id}"
+                            onclick="playSong(${song.id}, '${escJs(song.title)}', '${escJs(song.artist)}')">
+                        Воспроизвести
+                    </button>`;
+                container.appendChild(card);
             });
-            
-            // Уведомление
-            showNotification(`▶ Сейчас играет: ${title}`);
-            
-            // Обработчики событий
-            window.audioPlayer.onended = function() {
-                currentBtn.classList.remove('playing');
-                window.currentSongId = null;
-                showNotification('■ Воспроизведение завершено');
-            };
-            
-            window.audioPlayer.onpause = function() {
-                if (window.audioPlayer.ended) return;
-                currentBtn.classList.remove('playing');
-                showNotification('⏸ Воспроизведение приостановлено');
-            };
         }
 
-        // Уведомления
-        function showNotification(message) {
-            // Удаляем предыдущее уведомление
-            const existing = document.querySelector('.notification');
-            if (existing) existing.remove();
-            
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 32px;
-                right: 32px;
-                background: rgba(10, 10, 15, 0.95);
-                color: rgba(255, 255, 255, 0.9);
-                padding: 16px 24px;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                font-size: 0.9rem;
-                font-weight: 350;
-                letter-spacing: 0.5px;
-                z-index: 10000;
-                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
-                backdrop-filter: blur(10px);
-                max-width: 400px;
-                line-height: 1.4;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 3000);
+        function escHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        function escJs(s) { return String(s).replace(/'/g,"\\'"); }
+
+        // ── Загрузка данных с API ──
+        async function loadStats() {
+            try {
+                const r = await fetch('/api/stats');
+                const d = await r.json();
+                if (!d.success) return;
+                document.getElementById('stat-songs').textContent  = d.total_songs;
+                document.getElementById('stat-users').textContent  = d.total_users;
+                document.getElementById('stat-plays').textContent  = d.total_plays >= 1000
+                    ? (d.total_plays / 1000).toFixed(1) + 'k'
+                    : d.total_plays;
+            } catch {}
         }
 
-        // Стили для анимации уведомлений
+        async function loadPopular() {
+            try {
+                const r = await fetch('/api/songs/top?limit=6');
+                const d = await r.json();
+                if (d.success) renderCards(d.songs, document.getElementById('popular-grid'));
+            } catch {}
+        }
+
+        async function loadRecent() {
+            try {
+                const r = await fetch('/api/songs/new?limit=6');
+                const d = await r.json();
+                if (d.success) renderCards(d.songs, document.getElementById('recent-grid'));
+            } catch {}
+        }
+
+        // ── Уведомления ──
+        let notifTimer = null;
+        function showNotification(msg) {
+            const old = document.querySelector('.notification');
+            if (old) old.remove();
+            if (notifTimer) clearTimeout(notifTimer);
+            const el = document.createElement('div');
+            el.className = 'notification';
+            el.style.cssText = `
+                position:fixed;bottom:24px;right:24px;
+                background:rgba(10,10,15,0.95);color:rgba(255,255,255,0.9);
+                padding:14px 20px;border:1px solid rgba(255,255,255,0.08);
+                font-size:0.9rem;border-radius:8px;z-index:10000;
+                backdrop-filter:blur(10px);max-width:340px;
+                animation:slideUp 0.3s ease;`;
+            el.textContent = msg;
+            document.body.appendChild(el);
+            notifTimer = setTimeout(() => el.remove(), 3000);
+        }
+
         const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes fadeOut {
-                from {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-            }
-        `;
+        style.textContent = `@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`;
         document.head.appendChild(style);
+
+        // ── Бургер-меню ──
+        const burgerBtn = document.getElementById('burger-btn');
+        const mainNav   = document.getElementById('main-nav');
+
+        function closeNav() {
+            if (burgerBtn) burgerBtn.classList.remove('open');
+            if (mainNav) mainNav.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        burgerBtn.addEventListener('click', () => {
+            const open = mainNav.classList.toggle('open');
+            burgerBtn.classList.toggle('open');
+            document.body.style.overflow = open ? 'hidden' : '';
+        });
+
+        // ── Инициализация ──
+        loadStats();
+        loadPopular();
+        loadRecent();
     </script>
 </body>
 </html>

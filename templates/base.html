@@ -5,45 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MusicFlow{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-   
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        :root {
-            --primary: #1db954;
-            --primary-dark: #1ed760;
-            --background: #000000;
-            --card-bg: #181818;
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-hover: #282828;
-            --header-bg: #000000;
-            --error: #e22134;
-            --success: #1db954;
+        /* ── Сброс и база ── */
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --accent:      #667eea;
+            --accent-soft: rgba(102,126,234,0.12);
+            --bg:          #0a0a0f;
+            --surface:     rgba(255,255,255,0.02);
+            --border:      rgba(255,255,255,0.06);
+            --border-mid:  rgba(255,255,255,0.1);
+            --text-1:      #ffffff;
+            --text-2:      rgba(255,255,255,0.55);
+            --text-3:      rgba(255,255,255,0.28);
+            --error:       rgba(255,80,80,0.85);
+            --success:     rgba(80,220,140,0.85);
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
             min-height: 100vh;
+            line-height: 1.6;
+            font-weight: 300;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .navbar {
-            background: var(--header-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #282828;
+        /* ── Навигация ── */
+        .site-nav {
+            padding: 22px 40px;
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 500;
+            background: rgba(10,10,15,0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
-        .nav-content {
+        .nav-inner {
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
@@ -51,159 +60,230 @@
             align-items: center;
         }
 
-        .logo {
+        /* Логотип */
+        .nav-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: bold;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-1);
+            font-size: 1.15rem;
+            font-weight: 400;
+            letter-spacing: -0.01em;
         }
 
-        .logo i {
-            color: var(--primary);
+        .nav-logo-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+            border-radius: 3px;
+            transform: rotate(45deg);
+            flex-shrink: 0;
         }
 
+        /* Ссылки */
         .nav-links {
             display: flex;
-            gap: 2rem;
             align-items: center;
+            gap: 8px;
         }
 
         .nav-links a {
-            color: var(--text-secondary);
+            color: var(--text-2);
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 0.4px;
+            padding: 7px 14px;
+            border-radius: 2px;
+            transition: color 0.2s ease;
+            position: relative;
         }
 
         .nav-links a:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-1);
         }
 
         .nav-links a.active {
-            color: var(--primary);
-            background: rgba(29, 185, 84, 0.1);
+            color: var(--accent);
         }
 
-        .btn {
-            background: var(--primary);
-            color: black;
-            padding: 0.7rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
+        .nav-links a.nav-cta {
+            border: 1px solid var(--border-mid);
+            color: var(--text-2);
+            margin-left: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-links a.nav-cta:hover {
+            border-color: rgba(102,126,234,0.5);
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        /* Бургер (мобайл) */
+        .burger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
             border: none;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            padding: 6px;
+            z-index: 600;
         }
 
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.05);
+        .burger span {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: var(--text-2);
+            transition: all 0.3s ease;
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid #535353;
+        .burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .burger.open span:nth-child(2) { opacity: 0; }
+        .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+        @media (max-width: 720px) {
+            .site-nav { padding: 16px 20px; }
+
+            .burger { display: flex; }
+
+            .nav-links {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(10,10,15,0.98);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 1.5rem;
+                z-index: 550;
+            }
+
+            .nav-links.open { display: flex; }
+
+            .nav-links a {
+                font-size: 1.2rem;
+                padding: 10px 24px;
+            }
         }
 
-        .btn-secondary:hover {
-            background: #282828;
-            border-color: #b3b3b3;
-        }
-
-        .flash-messages {
+        /* ── Flash-сообщения ── */
+        .flash-wrap {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 1rem 2rem;
+            padding: 16px 40px 0;
         }
 
-        .flash-message {
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .flash {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 500;
+            gap: 12px;
+            padding: 13px 18px;
+            margin-bottom: 10px;
+            border-left: 2px solid transparent;
+            font-size: 0.88rem;
+            font-weight: 400;
+            animation: flashIn 0.3s ease;
         }
 
-        .flash-message.success {
-            background: rgba(29, 185, 84, 0.1);
-            border: 1px solid var(--success);
+        @keyframes flashIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash.success {
+            border-color: var(--success);
+            background: rgba(80,220,140,0.06);
             color: var(--success);
         }
 
-        .flash-message.error {
-            background: rgba(226, 33, 52, 0.1);
-            border: 1px solid var(--error);
+        .flash.error {
+            border-color: var(--error);
+            background: rgba(255,80,80,0.06);
             color: var(--error);
         }
 
-        .flash-message.info {
-            background: rgba(83, 83, 83, 0.1);
-            border: 1px solid var(--text-secondary);
-            color: var(--text-secondary);
+        .flash.info {
+            border-color: var(--border-mid);
+            background: var(--surface);
+            color: var(--text-2);
         }
 
+        .flash i { font-size: 0.8rem; flex-shrink: 0; }
+
+        /* ── Основной контент ── */
         .main-content {
-            padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            padding: 48px 40px 80px;
         }
 
-        @media (max-width: 768px) {
-            .nav-links {
-                gap: 1rem;
-            }
-            
-            .navbar {
-                padding: 1rem;
-            }
+        @media (max-width: 720px) {
+            .main-content  { padding: 32px 20px 60px; }
+            .flash-wrap    { padding: 12px 20px 0; }
         }
+
+        /* ── Кастомный скроллбар ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
     </style>
 </head>
 <body>
-    <!-- Навигация -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">
-                <i class="fas fa-music"></i>
-                <span>MusicFlow</span>
-            </div>
-            <div class="nav-links">
-                <a href="/" class="{% if request.endpoint == 'home' %}active{% endif %}">Главная</a>
-                <a href="/music" class="{% if request.endpoint == 'show_music' %}active{% endif %}">Музыка</a>
+
+    <!-- ── Навигация ── -->
+    <nav class="site-nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <div class="nav-logo-icon"></div>
+                MUSICFLOW
+            </a>
+
+            <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="nav-links">
+                <a href="/"
+                   class="{% if request.endpoint == 'home' %}active{% endif %}"
+                   onclick="closeNav()">Главная</a>
+
+                <a href="/music"
+                   class="{% if request.endpoint == 'show_music' %}active{% endif %}"
+                   onclick="closeNav()">Треки</a>
+
                 {% if current_user.is_authenticated %}
-                    <a href="/upload" class="{% if request.endpoint == 'upload' %}active{% endif %}">Загрузить</a>
-                    <a href="/profile" class="{% if request.endpoint == 'profile' %}active{% endif %}">
-                        <i class="fas fa-user"></i> {{ current_user.username }}
-                    </a>
-                    <a href="/logout" class="btn-secondary">
-                        <i class="fas fa-sign-out-alt"></i> Выйти
-                    </a>
+                    <a href="/upload"
+                       class="{% if request.endpoint == 'upload' %}active{% endif %}"
+                       onclick="closeNav()">Загрузить</a>
+
+                    <a href="/profile"
+                       class="{% if request.endpoint == 'profile' %}active{% endif %}"
+                       onclick="closeNav()">{{ current_user.username }}</a>
+
+                    <a href="/logout" class="nav-cta" onclick="closeNav()">Выйти</a>
                 {% else %}
-                    <a href="/login" class="{% if request.endpoint == 'login' %}active{% endif %}">Войти</a>
-                    <a href="/register" class="btn">Регистрация</a>
+                    <a href="/login"
+                       class="{% if request.endpoint == 'login' %}active{% endif %}"
+                       onclick="closeNav()">Войти</a>
+
+                    <a href="/register" class="nav-cta" onclick="closeNav()">Регистрация</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- Уведомления -->
-    <div class="flash-messages">
+    <!-- ── Flash-сообщения ── -->
+    <div class="flash-wrap">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    <div class="flash {{ category }}">
+                        <i class="fas fa-{% if category == 'success' %}check{% elif category == 'error' %}exclamation{% else %}info{% endif %}-circle"></i>
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -211,9 +291,28 @@
         {% endwith %}
     </div>
 
-    <!-- Основной контент -->
+    <!-- ── Контент ── -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        const burger   = document.getElementById('burger');
+        const navLinks = document.getElementById('nav-links');
+
+        function closeNav() {
+            burger.classList.remove('open');
+            navLinks.classList.remove('open');
+            burger.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+
+        burger.addEventListener('click', () => {
+            const open = navLinks.classList.toggle('open');
+            burger.classList.toggle('open');
+            burger.setAttribute('aria-expanded', String(open));
+            document.body.style.overflow = open ? 'hidden' : '';
+        });
+    </script>
 </body>
 </html>

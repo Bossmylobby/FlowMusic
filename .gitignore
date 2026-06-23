@@ -1,0 +1,37 @@
+# Переменные окружения — секреты никогда не должны попасть в репозиторий
+.env
+.env.*
+!.env.example
+
+# База данных SQLite
+instance/
+*.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Загруженные файлы пользователей
+uploads/
+static/music/*.mp3
+static/music/*.wav
+static/music/*.ogg
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

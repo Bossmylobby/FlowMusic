@@ -1,241 +1,338 @@
 {% extends "base.html" %}
-
-{% block title %}Профиль - MusicFlow{% endblock %}
+{% block title %}Профиль — MusicFlow{% endblock %}
 
 {% block content %}
 <style>
+    .profile-page {
+        max-width: 1000px;
+        margin: 0 auto;
+        animation: fadeUp 0.45s ease both;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Шапка профиля ── */
     .profile-header {
         display: flex;
         align-items: center;
-        gap: 2rem;
-        margin-bottom: 3rem;
-        background: var(--card-bg);
-        padding: 2rem;
-        border-radius: 12px;
-        border: 1px solid #282828;
+        gap: 32px;
+        padding-bottom: 48px;
+        margin-bottom: 48px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .profile-avatar {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, #450af5, #c4efd9);
-        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.5rem;
+        color: rgba(255,255,255,0.9);
+        font-size: 1.6rem;
+        flex-shrink: 0;
     }
 
-    .profile-info h1 {
+    .profile-info-name {
         font-size: 2rem;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, var(--primary), #fff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-weight: 350;
+        letter-spacing: -0.02em;
+        color: #fff;
+        margin-bottom: 6px;
     }
 
-    .profile-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .stat-card {
-        background: var(--card-bg);
-        padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #282828;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 900;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    .section-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        color: var(--text-primary);
-    }
-
-    .songs-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .song-card {
-        background: var(--card-bg);
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #282828;
-        transition: all 0.3s;
-    }
-
-    .song-card:hover {
-        background: var(--card-hover);
-    }
-
-    .song-header {
+    .profile-info-meta {
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.28);
+        letter-spacing: 0.3px;
         display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .song-cover {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #450af5, #c4efd9);
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .song-info h3 {
-        font-size: 1.1rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .song-info p {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    .song-meta {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
+        gap: 20px;
         flex-wrap: wrap;
     }
 
-    .genre-tag {
-        background: rgba(29, 185, 84, 0.1);
-        color: var(--primary);
-        padding: 0.3rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
+    .profile-info-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    .song-stats {
+    /* ── Статистика ── */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: rgba(255,255,255,0.04);
+        margin-bottom: 60px;
+    }
+
+    .stat-cell {
+        background: rgba(10,10,15,1);
+        padding: 28px 32px;
+        text-align: center;
+    }
+
+    .stat-cell-num {
+        font-size: 2.2rem;
+        font-weight: 350;
+        letter-spacing: -0.03em;
+        color: #fff;
+        margin-bottom: 6px;
+        font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    }
+
+    .stat-cell-label {
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.25);
+    }
+
+    /* ── Раздел треков ── */
+    .section-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
     }
 
+    .section-head h2 {
+        font-size: 1.4rem;
+        font-weight: 350;
+        letter-spacing: -0.01em;
+        color: #fff;
+    }
+
+    .upload-link {
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.3);
+        text-decoration: none;
+        padding: 9px 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        transition: all 0.25s ease;
+    }
+
+    .upload-link:hover {
+        border-color: rgba(102,126,234,0.4);
+        color: #667eea;
+        background: rgba(102,126,234,0.04);
+    }
+
+    /* ── Карточки треков ── */
+    .songs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1px;
+        background: rgba(255,255,255,0.04);
+    }
+
+    .song-card {
+        background: rgba(10,10,15,1);
+        padding: 28px;
+        transition: background 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .song-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(102,126,234,0.04) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .song-card:hover { background: rgba(15,15,22,1); }
+    .song-card:hover::before { opacity: 1; }
+
+    .song-card-num {
+        font-size: 0.72rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: rgba(255,255,255,0.1);
+        margin-bottom: 16px;
+    }
+
+    .song-card-title {
+        font-size: 1rem;
+        font-weight: 400;
+        color: #fff;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .song-card-artist {
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.38);
+        margin-bottom: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .song-card-artist::before {
+        content: '— ';
+        color: rgba(255,255,255,0.15);
+    }
+
+    .song-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .song-card-genre {
+        display: inline-block;
+        padding: 3px 10px;
+        background: rgba(255,255,255,0.04);
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.35);
+        letter-spacing: 0.5px;
+    }
+
+    .song-card-meta {
+        font-size: 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: rgba(255,255,255,0.22);
+        display: flex;
+        gap: 12px;
+    }
+
+    /* ── Пустой стейт ── */
     .empty-state {
+        padding: 80px 0;
         text-align: center;
-        padding: 3rem;
-        color: var(--text-secondary);
+        border: 1px solid rgba(255,255,255,0.04);
     }
 
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
+    .empty-state-icon {
+        width: 56px;
+        height: 56px;
+        border: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.15);
+        font-size: 1.2rem;
+        margin: 0 auto 24px;
     }
 
-    @media (max-width: 768px) {
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .songs-grid {
-            grid-template-columns: 1fr;
-        }
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.22);
+        margin-bottom: 28px;
+    }
+
+    .empty-state a {
+        display: inline-block;
+        padding: 11px 28px;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.55);
+        text-decoration: none;
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        transition: all 0.25s ease;
+    }
+
+    .empty-state a:hover {
+        border-color: rgba(102,126,234,0.4);
+        color: #667eea;
+    }
+
+    /* ── Адаптив ── */
+    @media (max-width: 640px) {
+        .profile-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .stats-row { grid-template-columns: 1fr; }
+        .songs-grid { grid-template-columns: 1fr; }
     }
 </style>
 
-<!-- Заголовок профиля -->
-<div class="profile-header">
-    <div class="profile-avatar">
-        <i class="fas fa-user"></i>
-    </div>
-    <div class="profile-info">
-        <h1>{{ current_user.username }}</h1>
-        <p style="color: var(--text-secondary);">Участник MusicFlow</p>
-        <p style="color: var(--text-secondary); margin-top: 0.5rem;">
-            <i class="fas fa-calendar"></i> Зарегистрирован: {{ current_user.created_at.strftime('%d.%m.%Y') }}
-        </p>
-    </div>
-</div>
+<div class="profile-page">
 
-<!-- Статистика -->
-<div class="profile-stats">
-    <div class="stat-card">
-        <div class="stat-number">{{ user_songs|length }}</div>
-        <div class="stat-label">Загружено треков</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number">
-            {{ user_songs|sum(attribute='plays') }}
+    <!-- Шапка -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user"></i>
         </div>
-        <div class="stat-label">Всего прослушиваний</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number">
-            {% if user_songs %}
-                {{ (user_songs|sum(attribute='plays') / user_songs|length)|round|int }}
-            {% else %}
-                0
-            {% endif %}
+        <div>
+            <div class="profile-info-name">{{ current_user.username }}</div>
+            <div class="profile-info-meta">
+                <span><i class="fas fa-calendar-alt"></i> {{ current_user.created_at.strftime('%d.%m.%Y') }}</span>
+                <span><i class="fas fa-music"></i> {{ user_songs|length }} треков</span>
+            </div>
         </div>
-        <div class="stat-label">Среднее на трек</div>
     </div>
-</div>
 
-<!-- Мои треки -->
-<div>
-    <h2 class="section-title">Мои треки</h2>
-    
+    <!-- Статистика -->
+    <div class="stats-row">
+        <div class="stat-cell">
+            <div class="stat-cell-num">{{ user_songs|length }}</div>
+            <div class="stat-cell-label">Треков</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-cell-num">{{ user_songs|sum(attribute='plays') }}</div>
+            <div class="stat-cell-label">Прослушиваний</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-cell-num">
+                {% if user_songs %}
+                    {{ (user_songs|sum(attribute='plays') / user_songs|length)|round|int }}
+                {% else %}0{% endif %}
+            </div>
+            <div class="stat-cell-label">Среднее на трек</div>
+        </div>
+    </div>
+
+    <!-- Треки -->
+    <div class="section-head">
+        <h2>Мои треки</h2>
+        <a href="/upload" class="upload-link">+ Загрузить</a>
+    </div>
+
     {% if user_songs %}
-    <div class="songs-grid">
-        {% for song in user_songs %}
-        <div class="song-card">
-            <div class="song-header">
-                <div class="song-cover">
-                    <i class="fas fa-music"></i>
+        <div class="songs-grid">
+            {% for song in user_songs %}
+            <div class="song-card">
+                <div class="song-card-num">{{ "%02d"|format(loop.index) }}</div>
+                <div class="song-card-title">{{ song.title }}</div>
+                <div class="song-card-artist">{{ song.artist }}</div>
+                <div class="song-card-footer">
+                    <span class="song-card-genre">{{ song.genre }}</span>
+                    <div class="song-card-meta">
+                        <span>{{ song.duration or '—' }}</span>
+                        <span>▶ {{ song.plays }}</span>
+                    </div>
                 </div>
-                <div class="song-info">
-                    <h3>{{ song.title }}</h3>
-                    <p>{{ song.artist }}</p>
-                </div>
             </div>
-            
-            <div class="song-meta">
-                <span class="genre-tag">{{ song.genre }}</span>
-                <span style="color: var(--text-secondary);">{{ song.duration }}</span>
-            </div>
-
-            <div class="song-stats">
-                <span>🎵 {{ song.plays }} прослушиваний</span>
-                <span>{{ song.upload_date.strftime('%d.%m.%Y') }}</span>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
     {% else %}
-    <div class="empty-state">
-        <i class="fas fa-music"></i>
-        <h3>Пока нет загруженных треков</h3>
-        <p>Загрузите свой первый трек и поделитесь им с сообществом!</p>
-        <a href="/upload" class="btn" style="margin-top: 1rem;">
-            <i class="fas fa-upload"></i> Загрузить трек
-        </a>
-    </div>
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-music"></i></div>
+            <h3>Треков пока нет</h3>
+            <p>Загрузите первый трек и поделитесь с сообществом</p>
+            <a href="/upload">Загрузить трек</a>
+        </div>
     {% endif %}
+
 </div>
 {% endblock %}
