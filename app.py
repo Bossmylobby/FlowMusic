@@ -20,10 +20,13 @@ from functools import wraps
 import requests
 
 # ──────────────────────────────────────────────────────────────
-#  ЗАГРУЗКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ИЗ .env
+#  БАЗОВЫЙ ПУТЬ ПРОЕКТА (работает на любом сервере)
 # ──────────────────────────────────────────────────────────────
 
-load_dotenv()  # Читает .env файл если он есть
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Загружаем .env из папки проекта
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # ──────────────────────────────────────────────────────────────
 #  КОНФИГУРАЦИЯ ПРИЛОЖЕНИЯ
@@ -42,9 +45,11 @@ if not _secret or _secret == 'замени-на-случайную-строку-
           "Sessii budut sbrosheny pri perezapuske!")
 
 app.config['SECRET_KEY'] = _secret
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///music.db'
+# Абсолютный путь к БД — работает и локально и на PythonAnywhere/Render
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'instance', 'music.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/music'
+# Абсолютный путь к загружаемым файлам
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'music')
 app.config['ALLOWED_EXTENSIONS'] = {'mp3', 'wav', 'ogg'}
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 МБ максимум на файл
 app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # CSRF-токен действует 1 час

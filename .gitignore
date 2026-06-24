@@ -3,10 +3,15 @@
 .env.*
 !.env.example
 
-# База данных SQLite
+# База данных SQLite — не коммитим локальную БД
 instance/
 *.db
 *.sqlite3
+
+# Не игнорируем файлы деплоя
+!.python-version
+!render.yaml
+!Procfile
 
 # Python
 __pycache__/

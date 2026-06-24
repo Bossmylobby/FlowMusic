@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: musicflow
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 60
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: DISCOGS_TOKEN
+        value: "yvHbfxVPkJNBwcoqItydFqkFYncLpxWJGbXaaLJy"
+    disk:
+      name: musicflow-data
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1

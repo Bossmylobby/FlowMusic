@@ -23,8 +23,18 @@
         nav{display:flex;gap:24px;align-items:center}
         nav a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.88rem;transition:color .2s}
         nav a:hover,nav a.active{color:#fff}
-        .nav-cta{background:#667eea;color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:500}
-        .nav-cta:hover{background:#5a6fd6!important}
+        .nav-cta{
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.55) !important;
+            padding: 7px 16px;
+            border-radius: 0;
+            transition: all 0.25s ease;
+        }
+        .nav-cta:hover{
+            border-color: rgba(102,126,234,0.5) !important;
+            color: #667eea !important;
+            background: rgba(102,126,234,0.05) !important;
+        }
         .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
         .burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
         .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
@@ -210,7 +220,7 @@
             <input class="search-input" id="dz-search" placeholder="Поиск в Deezer (хит, исполнитель...)">
         </div>
         <select class="filter-select" id="dz-genre">
-            <option value="0">🌍 Все чарты</option>
+            <option value="0">Все чарты</option>
         </select>
     </div>
 
@@ -394,11 +404,14 @@ function renderTracks(songs, source) {
             <div class="t-genre"><span class="${genreClass}">${esc(genreText)}</span></div>
             <div class="t-dur">${s.duration || '—'}</div>
             <div class="t-actions">
-                <button class="act-btn play ${playing && !audio.paused ? 'on' : ''}"
-                        id="btn-${trackId}"
-                        onclick="play('${trackId}','${escJ(s.title)}','${escJ(s.artist)}','${escJ(s.cover||'')}','${escJ(isDz ? s.preview_url : '/play/'+s.id)}','${isDz?'Deezer·30сек':''}')">
-                    <i class="fas ${btnIcon}"></i><span>${btnText}</span>
-                </button>
+                ${(isDz && !s.preview_url)
+                    ? `<button class="act-btn" disabled style="opacity:0.35;cursor:not-allowed" title="Превью недоступно"><i class="fas fa-ban"></i><span>Нет превью</span></button>`
+                    : `<button class="act-btn play ${playing && !audio.paused ? 'on' : ''}"
+                            id="btn-${trackId}"
+                            onclick="play('${trackId}','${escJ(s.title)}','${escJ(s.artist)}','${escJ(s.cover||'')}','${escJ(isDz ? s.preview_url : '/play/'+s.id)}','${isDz?'Discogs·превью':''}')">
+                        <i class="fas ${btnIcon}"></i><span>${btnText}</span>
+                    </button>`
+                }
                 ${!isDz ? `<button class="act-btn" onclick="dl('${s.id}','${escJ(s.title)}','${escJ(s.artist)}')">
                     <i class="fas fa-download"></i><span>Скачать</span>
                 </button>` : ''}
