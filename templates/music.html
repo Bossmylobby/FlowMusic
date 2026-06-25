@@ -69,7 +69,7 @@
 
         .track-item{
             display:grid;
-            grid-template-columns:44px 56px 1fr 160px 90px 80px 160px;
+            grid-template-columns:44px 56px 1fr 90px 80px 160px;
             align-items:center;gap:14px;
             padding:12px 14px;border-radius:8px;
             transition:background .15s;cursor:default;
@@ -79,7 +79,7 @@
 
         .track-head{
             display:grid;
-            grid-template-columns:44px 56px 1fr 160px 90px 80px 160px;
+            grid-template-columns:44px 56px 1fr 90px 80px 160px;
             align-items:center;gap:14px;
             padding:8px 14px 12px;
             color:rgba(255,255,255,0.28);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
@@ -96,7 +96,6 @@
         .t-title{font-size:.92rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
         .t-artist-sub{font-size:.78rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-        .t-artist{font-size:.88rem;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
         .t-genre span{display:inline-block;padding:3px 10px;background:rgba(255,255,255,0.06);border-radius:20px;font-size:.72rem;color:rgba(255,255,255,0.45);letter-spacing:.3px}
         .dz-badge{background:rgba(102,126,234,0.12)!important;color:#8a9ef0!important}
@@ -143,7 +142,7 @@
         /* ── Mobile ── */
         @media(max-width:900px){
             .track-item,.track-head{grid-template-columns:36px 44px 1fr 80px 110px}
-            .t-artist,.t-plays{display:none}
+            .t-plays{display:none}
         }
         @media(max-width:600px){
             header{padding:13px 16px}
@@ -153,7 +152,7 @@
             nav a{font-size:1.25rem}
             .page{padding:20px 14px 130px}
             .track-item,.track-head{grid-template-columns:30px 1fr 90px}
-            .t-cover,.t-artist,.t-genre,.t-plays{display:none}
+            .t-cover,.t-genre,.t-plays{display:none}
             .act-btn span{display:none}
             .act-btn{padding:7px 9px}
             .player{padding:12px 14px;gap:12px}
@@ -229,7 +228,7 @@
     <!-- Шапка таблицы -->
     <div class="track-head">
         <div>#</div><div></div><div>Название</div>
-        <div>Исполнитель</div><div>Жанр</div><div>Длит.</div><div>Действия</div>
+        <div>Жанр</div><div>Длит.</div><div>Действия</div>
     </div>
 
     <div class="tracks" id="tracks-container">
@@ -400,7 +399,6 @@ function renderTracks(songs, source) {
                 <div class="t-title" title="${esc(s.title)}">${esc(s.title)}</div>
                 <div class="t-artist-sub">${esc(s.artist)}</div>
             </div>
-            <div class="t-artist">${esc(s.artist)}</div>
             <div class="t-genre"><span class="${genreClass}">${esc(genreText)}</span></div>
             <div class="t-dur">${s.duration || '—'}</div>
             <div class="t-actions">
