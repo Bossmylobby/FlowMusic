@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Вход — MusicFlow{% endblock %}
+
+{% block content %}
+<style>
+    .auth-wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 40px 0 80px;
+        animation: fadeUp 0.45s ease both;
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .auth-eyebrow {
+        font-size: 0.72rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.25);
+        margin-bottom: 14px;
+    }
+    .auth-title {
+        font-size: 2.4rem;
+        font-weight: 350;
+        letter-spacing: -0.03em;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.1;
+    }
+    .auth-sub {
+        font-size: 0.9rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.35);
+        margin-bottom: 48px;
+    }
+    .demo-hint {
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 16px 20px;
+        margin-bottom: 36px;
+        cursor: pointer;
+        transition: border-color 0.25s ease, background 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .demo-hint:hover {
+        border-color: rgba(102,126,234,0.3);
+        background: rgba(102,126,234,0.03);
+    }
+    .demo-hint-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.25);
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    .demo-hint-text {
+        font-size: 0.82rem;
+        font-weight: 350;
+    }
+    .demo-hint-text strong {
+        color: rgba(255,255,255,0.7);
+        font-weight: 400;
+    }
+    .demo-hint-text span {
+        display: block;
+        color: rgba(255,255,255,0.25);
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+    .f-group { margin-bottom: 28px; }
+    .f-label {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.28);
+        margin-bottom: 10px;
+    }
+    .f-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 10px 0;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 350;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.25s ease;
+    }
+    .f-input::placeholder { color: rgba(255,255,255,0.18); }
+    .f-input:focus { border-bottom-color: #667eea; }
+    .f-error {
+        display: block;
+        color: rgba(255,80,80,0.85);
+        font-size: 0.78rem;
+        margin-top: 8px;
+    }
+    .f-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 36px;
+        cursor: pointer;
+    }
+    .f-check input {
+        width: 15px;
+        height: 15px;
+        accent-color: #667eea;
+        cursor: pointer;
+    }
+    .f-check-label {
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.35);
+    }
+    .f-submit {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
+        font-size: 0.82rem;
+        font-weight: 400;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.25s ease;
+        margin-bottom: 28px;
+    }
+    .f-submit:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102,126,234,0.04);
+    }
+    .auth-switch {
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.28);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 24px;
+    }
+    .auth-switch a {
+        color: rgba(255,255,255,0.55);
+        text-decoration: none;
+        margin-left: 4px;
+        transition: color 0.2s;
+    }
+    .auth-switch a:hover { color: #667eea; }
+</style>
+
+<div class="auth-wrap">
+    <div class="auth-eyebrow">Аккаунт</div>
+    <h1 class="auth-title">Вход</h1>
+    <p class="auth-sub">С возвращением в MusicFlow</p>
+
+    <div class="demo-hint" id="demo-hint">
+        <div class="demo-hint-icon"><i class="fas fa-key"></i></div>
+        <div class="demo-hint-text">
+            <strong>Тестовый аккаунт — demo</strong>
+            <span>Нажмите, чтобы заполнить автоматически</span>
+        </div>
+    </div>
+
+    <form method="POST" id="login-form" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="f-group">
+            <label class="f-label">Имя пользователя</label>
+            {{ form.username(class="f-input", placeholder="Введите логин", autocomplete="username") }}
+            {% for e in form.username.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="f-group">
+            <label class="f-label">Пароль</label>
+            {{ form.password(class="f-input", placeholder="Введите пароль", autocomplete="current-password") }}
+            {% for e in form.password.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <label class="f-check">
+            {{ form.remember() }}
+            <span class="f-check-label">Запомнить меня</span>
+        </label>
+
+        {{ form.submit(class="f-submit") }}
+    </form>
+
+    <div class="auth-switch">
+        Нет аккаунта?<a href="{{ url_for('register') }}">Зарегистрироваться</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('demo-hint').addEventListener('click', () => {
+    document.getElementById('username').value = 'demo';
+    document.getElementById('password').value = 'Demo@1234';
+});
+</script>
+{% endblock %}

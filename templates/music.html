@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Музыка — MusicFlow</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#fff;min-height:100vh}
+
+        /* ── Header ── */
+        header{
+            padding:18px 40px;border-bottom:1px solid rgba(255,255,255,0.06);
+            display:flex;justify-content:space-between;align-items:center;
+            position:sticky;top:0;z-index:200;
+            background:rgba(10,10,15,0.97);backdrop-filter:blur(14px);
+        }
+        .logo{font-size:1.3rem;font-weight:600;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
+        .logo-icon{width:20px;height:20px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:3px}
+        nav{display:flex;gap:24px;align-items:center}
+        nav a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.88rem;transition:color .2s}
+        nav a:hover,nav a.active{color:#fff}
+        .nav-cta{background:#667eea;color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:500}
+        .nav-cta:hover{background:#5a6fd6!important}
+        .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+        .burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+        .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+        .burger.open span:nth-child(2){opacity:0}
+        .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+        /* ── Page ── */
+        .page{max-width:1300px;margin:0 auto;padding:36px 24px 140px}
+
+        /* ── Tabs ── */
+        .tabs{display:flex;gap:4px;margin-bottom:32px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;width:fit-content}
+        .tab{padding:10px 24px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,0.5);font-size:0.9rem;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+        .tab:hover{color:#fff}
+        .tab.active{background:rgba(102,126,234,0.2);color:#667eea}
+
+        /* ── Controls ── */
+        .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;align-items:center}
+        .search-wrap{flex:1;min-width:200px;position:relative}
+        .search-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);font-size:.82rem}
+        .search-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px 10px 36px;color:#fff;font-size:.88rem;transition:border-color .2s}
+        .search-input:focus{outline:none;border-color:#667eea}
+        .search-input::placeholder{color:rgba(255,255,255,0.28)}
+        .filter-select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px;color:#fff;font-size:.88rem;cursor:pointer;transition:border-color .2s}
+        .filter-select:focus{outline:none;border-color:#667eea}
+        .filter-select option{background:#1a1a2e}
+
+        /* ── Info bar ── */
+        .results-info{color:rgba(255,255,255,0.3);font-size:.82rem;margin-bottom:16px}
+
+        /* ── Track list ── */
+        .tracks{display:flex;flex-direction:column;gap:3px}
+
+        .track-item{
+            display:grid;
+            grid-template-columns:44px 56px 1fr 160px 90px 80px 160px;
+            align-items:center;gap:14px;
+            padding:12px 14px;border-radius:8px;
+            transition:background .15s;cursor:default;
+        }
+        .track-item:hover{background:rgba(255,255,255,0.04)}
+        .track-item.now-playing{background:rgba(102,126,234,0.1)}
+
+        .track-head{
+            display:grid;
+            grid-template-columns:44px 56px 1fr 160px 90px 80px 160px;
+            align-items:center;gap:14px;
+            padding:8px 14px 12px;
+            color:rgba(255,255,255,0.28);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
+            border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px;
+        }
+
+        .t-num{color:rgba(255,255,255,0.22);font-size:.82rem;font-family:monospace;text-align:center}
+        .now-playing .t-num{color:#667eea}
+
+        .t-cover img{width:44px;height:44px;border-radius:5px;object-fit:cover;display:block}
+        .t-cover .no-cover{width:44px;height:44px;border-radius:5px;background:linear-gradient(135deg,#667eea22,#764ba222);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:.8rem}
+
+        .t-info{min-width:0}
+        .t-title{font-size:.92rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+        .t-artist-sub{font-size:.78rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        .t-artist{font-size:.88rem;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        .t-genre span{display:inline-block;padding:3px 10px;background:rgba(255,255,255,0.06);border-radius:20px;font-size:.72rem;color:rgba(255,255,255,0.45);letter-spacing:.3px}
+        .dz-badge{background:rgba(102,126,234,0.12)!important;color:#8a9ef0!important}
+
+        .t-dur,.t-plays{font-size:.82rem;color:rgba(255,255,255,0.38);font-family:monospace}
+
+        .t-actions{display:flex;gap:7px}
+        .act-btn{padding:6px 13px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.55);font-size:.78rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .act-btn.play{border-color:rgba(102,126,234,0.4);color:#8a9ef0}
+        .act-btn.play:hover,.act-btn.play.on{background:rgba(102,126,234,0.18);border-color:#667eea;color:#b0c0ff}
+        .act-btn:hover{border-color:rgba(255,255,255,0.2);color:#fff}
+
+        /* ── States ── */
+        .state{text-align:center;padding:70px 20px;color:rgba(255,255,255,0.28)}
+        .state i{font-size:2.5rem;margin-bottom:14px;display:block}
+        .state p{font-size:.95rem;line-height:1.6}
+        .state a{color:#667eea;text-decoration:none}
+        .spinner{width:36px;height:36px;border:2px solid rgba(255,255,255,0.08);border-top-color:#667eea;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 14px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* ── Player bar ── */
+        .player{
+            position:fixed;bottom:0;left:0;right:0;
+            background:rgba(10,10,18,0.98);border-top:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(16px);padding:14px 32px;
+            display:none;align-items:center;gap:20px;z-index:300;
+        }
+        .player.on{display:flex}
+        .player-cover img{width:46px;height:46px;border-radius:5px;object-fit:cover}
+        .player-cover .no-cover{width:46px;height:46px;border-radius:5px;background:rgba(102,126,234,0.15);display:flex;align-items:center;justify-content:center;color:#667eea;font-size:1rem}
+        .player-info{flex:1;min-width:0}
+        .player-title{font-size:.92rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .player-artist{font-size:.78rem;color:rgba(255,255,255,0.4);margin-top:2px}
+        .player-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;background:rgba(102,126,234,0.2);color:#8a9ef0;margin-top:3px}
+        .player-audio{flex:2;max-width:520px}
+        .player-audio audio{width:100%;height:34px;accent-color:#667eea}
+        .player-close{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:.95rem;padding:6px;transition:color .2s}
+        .player-close:hover{color:#fff}
+
+        /* ── Toast ── */
+        .toast{position:fixed;bottom:88px;right:22px;background:rgba(15,15,25,0.97);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:11px 18px;font-size:.83rem;color:rgba(255,255,255,0.85);backdrop-filter:blur(10px);z-index:400;animation:slideUp .25s ease;max-width:300px}
+        @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ── Mobile ── */
+        @media(max-width:900px){
+            .track-item,.track-head{grid-template-columns:36px 44px 1fr 80px 110px}
+            .t-artist,.t-plays{display:none}
+        }
+        @media(max-width:600px){
+            header{padding:13px 16px}
+            .burger{display:flex}
+            nav{display:none;position:fixed;inset:0;background:rgba(10,10,15,0.99);flex-direction:column;justify-content:center;align-items:center;gap:2rem;z-index:9999}
+            nav.open{display:flex}
+            nav a{font-size:1.25rem}
+            .page{padding:20px 14px 130px}
+            .track-item,.track-head{grid-template-columns:30px 1fr 90px}
+            .t-cover,.t-artist,.t-genre,.t-plays{display:none}
+            .act-btn span{display:none}
+            .act-btn{padding:7px 9px}
+            .player{padding:12px 14px;gap:12px}
+            .player-audio{display:none}
+            .toast{right:10px;left:10px;max-width:none;bottom:82px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+    <a href="{{ url_for('home') }}" class="logo">
+        <div class="logo-icon"></div>MUSICFLOW
+    </a>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+    <nav id="nav">
+        <a href="{{ url_for('home') }}" onclick="closeNav()">Главная</a>
+        <a href="{{ url_for('show_music') }}" class="active" onclick="closeNav()">Треки</a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('upload') }}" onclick="closeNav()">Загрузить</a>
+            <a href="{{ url_for('profile') }}" onclick="closeNav()">{{ current_user.username }}</a>
+            <a href="{{ url_for('logout') }}" onclick="closeNav()">Выйти</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" onclick="closeNav()">Войти</a>
+            <a href="{{ url_for('register') }}" class="nav-cta" onclick="closeNav()">Регистрация</a>
+        {% endif %}
+    </nav>
+</header>
+
+<!-- ── Content ── -->
+<div class="page">
+
+    <!-- Вкладки -->
+    <div class="tabs">
+        <button class="tab active" id="tab-my" onclick="switchTab('my')">
+            <i class="fas fa-music"></i> Мои треки
+        </button>
+        <button class="tab" id="tab-dz" onclick="switchTab('dz')">
+            <i class="fas fa-globe"></i> Дискавери
+        </button>
+    </div>
+
+    <!-- Панель управления (MY) -->
+    <div id="panel-my" class="controls">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input class="search-input" id="my-search" placeholder="Поиск среди своих треков...">
+        </div>
+        <select class="filter-select" id="my-genre">
+            <option value="">Все жанры</option>
+        </select>
+        <select class="filter-select" id="my-sort">
+            <option value="date_desc">Сначала новые</option>
+            <option value="plays_desc">По прослушиваниям</option>
+            <option value="title_asc">По названию А-Я</option>
+        </select>
+    </div>
+
+    <!-- Панель управления (DEEZER) -->
+    <div id="panel-dz" class="controls" style="display:none">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input class="search-input" id="dz-search" placeholder="Поиск в Deezer (хит, исполнитель...)">
+        </div>
+        <select class="filter-select" id="dz-genre">
+            <option value="0">🌍 Все чарты</option>
+        </select>
+    </div>
+
+    <div class="results-info" id="info-bar">Загрузка...</div>
+
+    <!-- Шапка таблицы -->
+    <div class="track-head">
+        <div>#</div><div></div><div>Название</div>
+        <div>Исполнитель</div><div>Жанр</div><div>Длит.</div><div>Действия</div>
+    </div>
+
+    <div class="tracks" id="tracks-container">
+        <div class="state"><div class="spinner"></div><p>Загрузка...</p></div>
+    </div>
+
+</div>
+
+<!-- ── Player ── -->
+<div class="player" id="player">
+    <div class="player-cover" id="player-cover">
+        <div class="no-cover"><i class="fas fa-music"></i></div>
+    </div>
+    <div class="player-info">
+        <div class="player-title" id="player-title">—</div>
+        <div class="player-artist" id="player-artist">—</div>
+        <span class="player-badge" id="player-badge" style="display:none"></span>
+    </div>
+    <div class="player-audio">
+        <audio id="audio" controls></audio>
+    </div>
+    <button class="player-close" id="player-close" title="Закрыть"><i class="fas fa-times"></i></button>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  Состояние
+// ══════════════════════════════════════
+let currentTab     = 'my';
+let currentId      = null;   // id играющего трека
+let mySearchTimer  = null;
+let dzSearchTimer  = null;
+const audio        = document.getElementById('audio');
+const player       = document.getElementById('player');
+
+// ══════════════════════════════════════
+//  Переключение вкладок
+// ══════════════════════════════════════
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-my').classList.toggle('active', tab === 'my');
+    document.getElementById('tab-dz').classList.toggle('active', tab === 'dz');
+    document.getElementById('panel-my').style.display = tab === 'my' ? 'flex' : 'none';
+    document.getElementById('panel-dz').style.display = tab === 'dz' ? 'flex' : 'none';
+    tab === 'my' ? loadMyTracks() : loadDeezer();
+}
+
+// ══════════════════════════════════════
+//  МОИ ТРЕКИ
+// ══════════════════════════════════════
+async function loadMyTracks() {
+    const search = document.getElementById('my-search').value.trim();
+    const genre  = document.getElementById('my-genre').value;
+    const sort   = document.getElementById('my-sort').value;
+    const [sortBy, sortOrd] = sort.split('_');
+
+    const p = new URLSearchParams({ sort: sortBy, order: sortOrd });
+    if (search) p.set('search', search);
+    if (genre)  p.set('genre', genre);
+
+    showSpinner();
+    try {
+        const res  = await fetch('/api/songs?' + p);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        document.getElementById('info-bar').textContent =
+            data.total === 0 ? 'Нет треков' : `Треков: ${data.total}`;
+        renderTracks(data.songs, 'my');
+    } catch(e) {
+        showError('Ошибка загрузки: ' + e.message);
+    }
+}
+
+async function loadMyGenres() {
+    try {
+        const res  = await fetch('/api/genres');
+        const data = await res.json();
+        if (!data.success) return;
+        const sel = document.getElementById('my-genre');
+        sel.innerHTML = '<option value="">Все жанры</option>';
+        data.genres.forEach(g => {
+            const o = document.createElement('option');
+            o.value = g.genre; o.textContent = `${g.genre} (${g.count})`;
+            sel.appendChild(o);
+        });
+    } catch {}
+}
+
+// ══════════════════════════════════════
+//  DEEZER
+// ══════════════════════════════════════
+async function loadDeezer() {
+    const q     = document.getElementById('dz-search').value.trim();
+    const genre = document.getElementById('dz-genre').value;
+
+    showSpinner();
+    try {
+        let url;
+        if (q) {
+            url = `/api/deezer/search?q=${encodeURIComponent(q)}&limit=30`;
+        } else {
+            url = `/api/deezer/charts?limit=30&genre=${genre}`;
+        }
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        document.getElementById('info-bar').textContent =
+            `Deezer • найдено: ${data.count} треков (30-сек превью)`;
+        renderTracks(data.tracks, 'dz');
+    } catch(e) {
+        showError('Ошибка Deezer: ' + e.message);
+    }
+}
+
+async function loadDeezerGenres() {
+    try {
+        const res  = await fetch('/api/deezer/genres');
+        const data = await res.json();
+        if (!data.success) return;
+        const sel = document.getElementById('dz-genre');
+        data.genres.forEach(g => {
+            const o = document.createElement('option');
+            o.value = g.id; o.textContent = g.name;
+            sel.appendChild(o);
+        });
+    } catch {}
+}
+
+// ══════════════════════════════════════
+//  Рендер треков
+// ══════════════════════════════════════
+function renderTracks(songs, source) {
+    const c = document.getElementById('tracks-container');
+    if (!songs.length) {
+        c.innerHTML = `<div class="state">
+            <i class="fas fa-music"></i>
+            <p>${source === 'my'
+                ? 'Треков нет. <a href="/upload">Загрузи первый!</a>'
+                : 'Ничего не найдено. Попробуй другой запрос.'
+            }</p></div>`;
+        return;
+    }
+    c.innerHTML = '';
+    songs.forEach((s, i) => {
+        const isDz    = source === 'dz';
+        const trackId = String(s.id);
+        const playing = trackId === String(currentId);
+
+        const row = document.createElement('div');
+        row.className = 'track-item' + (playing ? ' now-playing' : '');
+        row.id = 'row-' + trackId;
+
+        const coverHtml = s.cover
+            ? `<img src="${esc(s.cover)}" alt="" loading="lazy">`
+            : `<div class="no-cover"><i class="fas fa-music"></i></div>`;
+
+        const genreText = isDz ? (s.album || '—') : (s.genre || '—');
+        const genreClass = isDz ? 'dz-badge' : '';
+        const playsHtml  = isDz ? '' : `<div class="t-plays">▶ ${s.plays}</div>`;
+
+        const btnIcon  = playing && !audio.paused ? 'fa-pause' : 'fa-play';
+        const btnText  = playing && !audio.paused ? 'Пауза' : 'Слушать';
+
+        row.innerHTML = `
+            <div class="t-num">${i + 1}</div>
+            <div class="t-cover">${coverHtml}</div>
+            <div class="t-info">
+                <div class="t-title" title="${esc(s.title)}">${esc(s.title)}</div>
+                <div class="t-artist-sub">${esc(s.artist)}</div>
+            </div>
+            <div class="t-artist">${esc(s.artist)}</div>
+            <div class="t-genre"><span class="${genreClass}">${esc(genreText)}</span></div>
+            <div class="t-dur">${s.duration || '—'}</div>
+            <div class="t-actions">
+                <button class="act-btn play ${playing && !audio.paused ? 'on' : ''}"
+                        id="btn-${trackId}"
+                        onclick="play('${trackId}','${escJ(s.title)}','${escJ(s.artist)}','${escJ(s.cover||'')}','${escJ(isDz ? s.preview_url : '/play/'+s.id)}','${isDz?'Deezer·30сек':''}')">
+                    <i class="fas ${btnIcon}"></i><span>${btnText}</span>
+                </button>
+                ${!isDz ? `<button class="act-btn" onclick="dl('${s.id}','${escJ(s.title)}','${escJ(s.artist)}')">
+                    <i class="fas fa-download"></i><span>Скачать</span>
+                </button>` : ''}
+            </div>`;
+        c.appendChild(row);
+    });
+}
+
+// ══════════════════════════════════════
+//  Плеер
+// ══════════════════════════════════════
+function play(id, title, artist, cover, src, badge) {
+    if (currentId === id) {
+        audio.paused ? audio.play() : audio.pause();
+        updateBtn(id, !audio.paused);
+        return;
+    }
+    // Сбросить старый
+    if (currentId) {
+        updateBtn(currentId, false);
+        const old = document.getElementById('row-' + currentId);
+        if (old) old.classList.remove('now-playing');
+    }
+
+    currentId = id;
+    audio.src = src;
+    audio.play().catch(() => toast('⚠ Файл недоступен'));
+
+    // Плеер снизу
+    const coverEl = document.getElementById('player-cover');
+    coverEl.innerHTML = cover
+        ? `<img src="${esc(cover)}" alt="">`
+        : `<div class="no-cover"><i class="fas fa-music"></i></div>`;
+    document.getElementById('player-title').textContent  = title;
+    document.getElementById('player-artist').textContent = artist;
+    const badgeEl = document.getElementById('player-badge');
+    if (badge) { badgeEl.textContent = badge; badgeEl.style.display = 'inline-block'; }
+    else badgeEl.style.display = 'none';
+    player.classList.add('on');
+
+    updateBtn(id, true);
+    const row = document.getElementById('row-' + id);
+    if (row) row.classList.add('now-playing');
+
+    toast(`▶ ${title} — ${artist}`);
+}
+
+function updateBtn(id, playing) {
+    const btn = document.getElementById('btn-' + id);
+    if (!btn) return;
+    btn.classList.toggle('on', playing);
+    const ico  = btn.querySelector('i');
+    const span = btn.querySelector('span');
+    if (ico)  ico.className  = `fas ${playing ? 'fa-pause' : 'fa-play'}`;
+    if (span) span.textContent = playing ? 'Пауза' : 'Слушать';
+}
+
+audio.onended = () => { updateBtn(currentId, false); };
+audio.onpause = () => { if (!audio.ended) updateBtn(currentId, false); };
+audio.onplay  = () => { updateBtn(currentId, true); };
+
+document.getElementById('player-close').onclick = () => {
+    audio.pause(); audio.src = '';
+    player.classList.remove('on');
+    if (currentId) { updateBtn(currentId, false); currentId = null; }
+};
+
+function dl(id, title, artist) {
+    const a = document.createElement('a');
+    a.href = `/play/${id}`; a.download = `${artist} - ${title}.mp3`; a.click();
+    toast(`⬇ ${title}`);
+}
+
+// ══════════════════════════════════════
+//  Утилиты
+// ══════════════════════════════════════
+function showSpinner() {
+    document.getElementById('tracks-container').innerHTML =
+        '<div class="state"><div class="spinner"></div><p>Загружаем...</p></div>';
+}
+function showError(msg) {
+    document.getElementById('tracks-container').innerHTML =
+        `<div class="state"><i class="fas fa-exclamation-triangle"></i><p>${msg}</p></div>`;
+}
+
+let toastTmr = null;
+function toast(msg) {
+    const old = document.querySelector('.toast');
+    if (old) old.remove();
+    clearTimeout(toastTmr);
+    const el = document.createElement('div');
+    el.className = 'toast'; el.textContent = msg;
+    document.body.appendChild(el);
+    toastTmr = setTimeout(() => el.remove(), 3000);
+}
+
+function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escJ(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+// ══════════════════════════════════════
+//  События: поиск с задержкой
+// ══════════════════════════════════════
+document.getElementById('my-search').addEventListener('input', () => {
+    clearTimeout(mySearchTimer);
+    mySearchTimer = setTimeout(loadMyTracks, 400);
+});
+document.getElementById('my-genre').addEventListener('change', loadMyTracks);
+document.getElementById('my-sort').addEventListener('change', loadMyTracks);
+
+document.getElementById('dz-search').addEventListener('input', () => {
+    clearTimeout(dzSearchTimer);
+    dzSearchTimer = setTimeout(loadDeezer, 600);
+});
+document.getElementById('dz-genre').addEventListener('change', loadDeezer);
+
+// Бургер
+const burger = document.getElementById('burger');
+const nav    = document.getElementById('nav');
+function closeNav(){ burger.classList.remove('open'); nav.classList.remove('open'); document.body.style.overflow=''; }
+burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.classList.toggle('open');
+    document.body.style.overflow = open ? 'hidden' : '';
+});
+
+// ══════════════════════════════════════
+//  Инициализация
+// ══════════════════════════════════════
+loadMyGenres();
+loadDeezerGenres();
+loadMyTracks();
+</script>
+</body>
+</html>

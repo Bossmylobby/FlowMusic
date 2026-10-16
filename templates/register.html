@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — MusicFlow{% endblock %}
+
+{% block content %}
+<style>
+    .auth-wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 40px 0 80px;
+        animation: fadeUp 0.45s ease both;
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .auth-eyebrow {
+        font-size: 0.72rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.25);
+        margin-bottom: 14px;
+    }
+    .auth-title {
+        font-size: 2.4rem;
+        font-weight: 350;
+        letter-spacing: -0.03em;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.1;
+    }
+    .auth-sub {
+        font-size: 0.9rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.35);
+        margin-bottom: 48px;
+    }
+    .f-group { margin-bottom: 28px; }
+    .f-label {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.28);
+        margin-bottom: 10px;
+    }
+    .f-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 10px 0;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 350;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.25s ease;
+    }
+    .f-input::placeholder { color: rgba(255,255,255,0.18); }
+    .f-input:focus { border-bottom-color: #667eea; }
+    .f-error {
+        display: block;
+        color: rgba(255,80,80,0.85);
+        font-size: 0.78rem;
+        margin-top: 8px;
+    }
+    .f-hint {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.22);
+        margin-top: 8px;
+    }
+    .pwd-bar-wrap {
+        height: 2px;
+        background: rgba(255,255,255,0.06);
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    .pwd-bar {
+        height: 100%;
+        width: 0;
+        transition: width 0.35s ease, background 0.35s ease;
+    }
+    .pwd-bar.weak   { width: 33%; background: rgba(255,80,80,0.7); }
+    .pwd-bar.medium { width: 66%; background: rgba(255,165,60,0.8); }
+    .pwd-bar.strong { width: 100%; background: rgba(102,126,234,0.9); }
+    .f-submit {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
+        font-size: 0.82rem;
+        font-weight: 400;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.25s ease;
+        margin-bottom: 28px;
+    }
+    .f-submit:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102,126,234,0.04);
+    }
+    .auth-switch {
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 350;
+        color: rgba(255,255,255,0.28);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 24px;
+    }
+    .auth-switch a {
+        color: rgba(255,255,255,0.55);
+        text-decoration: none;
+        margin-left: 4px;
+        transition: color 0.2s;
+    }
+    .auth-switch a:hover { color: #667eea; }
+</style>
+
+<div class="auth-wrap">
+    <div class="auth-eyebrow">Аккаунт</div>
+    <h1 class="auth-title">Регистрация</h1>
+    <p class="auth-sub">Присоединяйтесь к MusicFlow</p>
+
+    <form method="POST" id="register-form" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="f-group">
+            <label class="f-label">Имя пользователя</label>
+            {{ form.username(class="f-input", placeholder="от 3 до 20 символов", autocomplete="username") }}
+            <div class="f-hint">Только латинские буквы, цифры и _</div>
+            {% for e in form.username.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="f-group">
+            <label class="f-label">Email</label>
+            {{ form.email(class="f-input", placeholder="your@email.com", autocomplete="email") }}
+            {% for e in form.email.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="f-group">
+            <label class="f-label">Пароль</label>
+            {{ form.password(class="f-input", id="password", placeholder="минимум 8 символов", autocomplete="new-password") }}
+            <div class="pwd-bar-wrap"><div class="pwd-bar" id="pwd-bar"></div></div>
+            <div class="f-hint" id="pwd-hint">Минимум 8 символов + цифра или спецсимвол</div>
+            {% for e in form.password.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="f-group">
+            <label class="f-label">Подтвердите пароль</label>
+            {{ form.confirm_password(class="f-input", placeholder="повторите пароль", autocomplete="new-password") }}
+            {% for e in form.confirm_password.errors %}<span class="f-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        {{ form.submit(class="f-submit") }}
+    </form>
+
+    <div class="auth-switch">
+        Уже есть аккаунт?<a href="{{ url_for('login') }}">Войти</a>
+    </div>
+</div>
+
+<script>
+const pwdInput = document.getElementById('password');
+const pwdBar   = document.getElementById('pwd-bar');
+const pwdHint  = document.getElementById('pwd-hint');
+
+pwdInput.addEventListener('input', function () {
+    const v = this.value;
+    let score = 0;
+    if (v.length >= 8)      score++;
+    if (/[A-Za-z]/.test(v)) score++;
+    if (/\d/.test(v))       score++;
+    if (/[\W_]/.test(v))    score++;
+
+    pwdBar.className = 'pwd-bar';
+    if (!v) {
+        pwdBar.style.width = '0';
+        pwdHint.textContent = 'Минимум 8 символов + цифра или спецсимвол';
+        pwdHint.style.color = '';
+    } else if (score <= 2) {
+        pwdBar.classList.add('weak');
+        pwdHint.textContent = 'Слабый пароль';
+        pwdHint.style.color = 'rgba(255,80,80,0.7)';
+    } else if (score === 3) {
+        pwdBar.classList.add('medium');
+        pwdHint.textContent = 'Средний — можно лучше';
+        pwdHint.style.color = 'rgba(255,165,60,0.8)';
+    } else {
+        pwdBar.classList.add('strong');
+        pwdHint.textContent = 'Надёжный пароль ✓';
+        pwdHint.style.color = 'rgba(102,126,234,0.9)';
+    }
+});
+</script>
+{% endblock %}
