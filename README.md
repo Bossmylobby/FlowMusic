@@ -88,13 +88,6 @@ musicflow/
 | GET /play/<id> | Стрим файла |
 
 Старые пути /api/deezer/* тоже работают.
-
-## Важно
-
-1. Не коммить venv/ — только requirements.txt
-2. Не коммить .env — только .env.example
-3. Токен Discogs и SECRET_KEY только в переменных окружения
-
 ## Лицензия
 
 MIT
