@@ -1,0 +1,37 @@
+# Секреты
+.env
+.env.*
+!.env.example
+
+# База данных
+instance/
+*.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Виртуальное окружение — НЕ коммить!
+venv/
+env/
+.venv/
+
+# Загруженные аудио
+static/music/*.mp3
+static/music/*.wav
+static/music/*.ogg
+!static/music/.gitkeep
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
